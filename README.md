@@ -28,3 +28,25 @@ Ez a projekt az amőba játék logikájának gyakorlati megvalósítása:
 ---
 
 ## Projekt struktúra
+amoba2025_vedes/
+│
+├── pom.xml
+├── README.md
+├── .gitignore
+│
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── hu/szakacsjozsef/amoba/
+│   │   │       ├── AmoebaJatek.java
+│   │   │       ├── service/HighScoreService.java
+│   │   │       └── vo/ScoreEntry.java
+│   │   │
+│   │   └── resources/
+│   │       └── highscore.txt
+│   │
+│   └── test/
+│       └── java/
+│           └── hu/szakacsjozsef/amoba/
+│               ├── AmoebaJatekTest.java
+│               └── HighScoreServiceTest.java
