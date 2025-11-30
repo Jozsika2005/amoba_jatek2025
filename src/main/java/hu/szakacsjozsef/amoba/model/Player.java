@@ -1,4 +1,4 @@
-package hu.uni.amoeba.model;
+package hu.uni.amoba.model;
 
 
 public enum Player {
