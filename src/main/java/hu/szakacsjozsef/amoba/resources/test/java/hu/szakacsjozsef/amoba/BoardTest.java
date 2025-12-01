@@ -1,4 +1,4 @@
-package hu.uni.amoeba;
+package hu.uni.amoba;
 
 
 import hu.uni.amoba.model.Board;
