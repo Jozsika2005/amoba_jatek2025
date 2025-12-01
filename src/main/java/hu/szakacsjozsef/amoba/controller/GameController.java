@@ -1,11 +1,11 @@
-package hu.uni.amoeba.controller;
+package hu.uni.amoba.controller;
 
 
-import hu.uni.amoeba.model.Board;
-import hu.uni.amoeba.model.Move;
-import hu.uni.amoeba.model.Player;
-import hu.uni.amoeba.service.GameService;
-import hu.uni.amoeba.exception.InvalidMoveException;
+import hu.uni.amoba.model.Board;
+import hu.uni.amoba.model.Move;
+import hu.uni.amoba.model.Player;
+import hu.uni.amoba.service.GameService;
+import hu.uni.amoba.exception.InvalidMoveException;
 
 
 import java.util.Scanner;
