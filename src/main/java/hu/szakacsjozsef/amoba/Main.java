@@ -1,7 +1,7 @@
 package hu.uni.amoba;
 
 
-import hu.uni.amoeba.controller.GameController;
+import hu.uni.amoba.controller.GameController;
 
 
 public class Main {
