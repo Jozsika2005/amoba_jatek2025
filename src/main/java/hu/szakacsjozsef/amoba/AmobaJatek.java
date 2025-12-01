@@ -1,95 +1,114 @@
+
 import java.util.Scanner;
 
 public class AmobaJatek {
 
+    private static char[][] board = new char[3][3];
+    private static char currentPlayer = 'X';
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        HighScoreService highScore = new HighScoreService();
-
-        char[][] tabla = new char[3][3];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                tabla[i][j] = ' ';
-            }
-        }
-
-        boolean jatekVege = false;
-        char jelenlegiJatekos = 'X';
-
-        System.out.println("Üdv az amőba játékban!");
-        printTabla(tabla);
-
-        while (!jatekVege) {
-            System.out.println("Játékos " + jelenlegiJatekos + ", írd be a sor és oszlop számát (0-2):");
-            int sor = scanner.nextInt();
-            int oszlop = scanner.nextInt();
-
-            if (sor < 0 || sor > 2 || oszlop < 0 || oszlop > 2) {
-                System.out.println("Hibás koordináták! Próbáld újra.");
-                continue;
-            }
-
-            if (tabla[sor][oszlop] != ' ') {
-                System.out.println("Ez a hely már foglalt! Próbáld újra.");
-                continue;
-            }
-
-            tabla[sor][oszlop] = jelenlegiJatekos;
-            printTabla(tabla);
-
-            if (nyert(tabla, jelenlegiJatekos)) {
-                System.out.println("Gratulálok! Játékos " + jelenlegiJatekos + " nyert!");
-
-                scanner.nextLine(); // buffer ürítés
-                System.out.print("Add meg a neved: ");
-                String nev = scanner.nextLine();
-
-                highScore.addScore(nev);
-                highScore.printScores();
-
-                jatekVege = true;
-
-            } else if (dontetlen(tabla)) {
-                System.out.println("Döntetlen!");
-                highScore.printScores();
-                jatekVege = true;
-            } else {
-                jelenlegiJatekos = (jelenlegiJatekos == 'X') ? 'O' : 'X';
-            }
-        }
-
-        scanner.close();
+        initializeBoard();
+        playGame();
     }
 
-    public static void printTabla(char[][] tabla) {
-        System.out.println("-------------");
-        for (int i = 0; i < 3; i++) {
-            System.out.print("| ");
-            for (int j = 0; j < 3; j++) {
-                System.out.print(tabla[i][j] + " | ");
+    private static void initializeBoard() {
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                board[r][c] = ' ';
+            }
+        }
+    }
+
+    private static void playGame() {
+        Scanner sc = new Scanner(System.in);
+
+        while (true) {
+            printBoard();
+            System.out.println("Jelenlegi játékos: " + currentPlayer);
+            System.out.print("Add meg a sort (1-3): ");
+            int row = sc.nextInt() - 1;
+
+            System.out.print("Add meg az oszlopot (1-3): ");
+            int col = sc.nextInt() - 1;
+
+            if (!isValidMove(row, col)) {
+                System.out.println("Érvénytelen lépés! Próbáld újra.");
+                continue;
+            }
+
+            board[row][col] = currentPlayer;
+
+            if (checkWin(currentPlayer)) {
+                printBoard();
+                System.out.println("Játékos " + currentPlayer + " nyert!");
+                break;
+            }
+
+            if (isDraw()) {
+                printBoard();
+                System.out.println("Döntetlen!");
+                break;
+            }
+
+            switchPlayer();
+        }
+
+        sc.close();
+    }
+
+    private static void printBoard() {
+        System.out.println("\n  1   2   3 ");
+        for (int r = 0; r < 3; r++) {
+            System.out.println(" +---+---+---+");
+
+            System.out.print((r + 1) + "|");
+            for (int c = 0; c < 3; c++) {
+                System.out.print(" " + board[r][c] + " |");
             }
             System.out.println();
-            System.out.println("-------------");
         }
+        System.out.println(" +---+---+---+\n");
     }
 
-    public static boolean nyert(char[][] tabla, char jatekos) {
-        for (int i = 0; i < 3; i++) {
-            if (tabla[i][0] == jatekos && tabla[i][1] == jatekos && tabla[i][2] == jatekos) return true;
-            if (tabla[0][i] == jatekos && tabla[1][i] == jatekos && tabla[2][i] == jatekos) return true;
+    private static boolean isValidMove(int r, int c) {
+        if (r < 0 || r >= 3 || c < 0 || c >= 3) return false;
+        return board[r][c] == ' ';
+    }
+
+    private static void switchPlayer() {
+        if (currentPlayer == 'X') currentPlayer = 'O';
+        else currentPlayer = 'X';
+    }
+
+    private static boolean checkWin(char player) {
+
+        for (int r = 0; r < 3; r++) {
+            if (board[r][0] == player && board[r][1] == player && board[r][2] == player)
+                return true;
         }
-        if (tabla[0][0] == jatekos && tabla[1][1] == jatekos && tabla[2][2] == jatekos) return true;
-        if (tabla[0][2] == jatekos && tabla[1][1] == jatekos && tabla[2][0] == jatekos) return true;
+
+        for (int c = 0; c < 3; c++) {
+            if (board[0][c] == player && board[1][c] == player && board[2][c] == player)
+                return true;
+        }
+
+        if (board[0][0] == player && board[1][1] == player && board[2][2] == player)
+            return true;
+
+        if (board[0][2] == player && board[1][1] == player && board[2][0] == player)
+            return true;
 
         return false;
     }
 
-    public static boolean dontetlen(char[][] tabla) {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (tabla[i][j] == ' ') return false;
+
+    private static boolean isDraw() {
+        for (int r = 0; r < 3; r++) {
+            for (int c = 0; c < 3; c++) {
+                if (board[r][c] == ' ') return false;
             }
         }
         return true;
     }
 }
+
