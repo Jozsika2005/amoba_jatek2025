@@ -1,40 +1,45 @@
-package hu.uni.amoba.service;
+package com.example.amoba.service;
 
 
-import hu.uni.amoba.model.Board;
-import hu.uni.amoba.model.Move;
-import hu.uni.amoba.model.Player;
-import hu.uni.amoba.exception.InvalidMoveException;
+import com.example.amoba.model.Game;
+import com.example.amoba.model.Player;
+import com.example.amoba.persistence.ScoreRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+import java.util.Optional;
 
 
 public class GameService {
+private static final Logger logger = LoggerFactory.getLogger(GameService.class);
+private final ScoreRepository scoreRepo;
+private final Game game;
 
 
-public void makeMove(Board board, Move move) throws InvalidMoveException {
-int r = move.row();
-int c = move.col();
-if (r < 0 || r > 2 || c < 0 || c > 2) {
-throw new InvalidMoveException("Koordináták kívül esnek a táblán: " + r + "," + c);
-}
-if (board.get(r, c) != null) {
-throw new InvalidMoveException("Ez a mező már foglalt: " + r + "," + c);
-}
-board.set(r, c, move.player());
+public GameService(Game game, ScoreRepository scoreRepo) {
+this.game = game;
+this.scoreRepo = scoreRepo;
 }
 
 
-public boolean hasWon(Board b, Player p) {
-for (int i = 0; i < 3; i++) {
-if (b.get(i,0) == p && b.get(i,1) == p && b.get(i,2) == p) return true;
-if (b.get(0,i) == p && b.get(1,i) == p && b.get(2,i) == p) return true;
+public boolean makeMove(int r, int c) {
+boolean ok = game.makeMove(r,c);
+logger.info("Move at ({},{}) accepted? {}", r,c,ok);
+if (ok) {
+Optional<Player> winner = game.checkWinner();
+if (winner.isPresent()) {
+try {
+// Nyertes esetén 1 pont alap (összeállítható)
+scoreRepo.saveScore(winner.get().getName(), 1);
+} catch (Exception e) {
+logger.error("Failed to save score", e);
 }
-if (b.get(0,0) == p && b.get(1,1) == p && b.get(2,2) == p) return true;
-if (b.get(0,2) == p && b.get(1,1) == p && b.get(2,0) == p) return true;
-return false;
+}
+}
+return ok;
 }
 
 
-public boolean isDraw(Board b) {
-return b.isFull() && !hasWon(b, Player.X) && !hasWon(b, Player.O);
-}
+public Game getGame(){ return game; }
 }
