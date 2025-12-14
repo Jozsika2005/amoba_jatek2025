@@ -29,8 +29,7 @@ game.makeMove(0,2); // X -> wins
 ScoreRepository repo = Mockito.mock(ScoreRepository.class);
 GameService svc = new GameService(game, repo);
 
-
-// perform a valid move (will be ignored if invalid), but winner already exists — our service checks winner after moves
+//Érvényes lépést hajt végre (érvénytelen esetén figyelmen kívül hagyja), de a nyertes már létezik — a szolgáltatásunk a lépések után ellenőrzi a nyertest)
 svc.makeMove(2,2);
 
 
