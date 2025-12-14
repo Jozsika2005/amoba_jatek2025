@@ -1,85 +1,39 @@
-package hu.szakacsjozsef.amoba;
+package com.example.amoba;
 
-import hu.szakacsjozsef.amoba.service.GameService;
-import hu.szakacsjozsef.amoba.service.HighScoreService;
-import org.junit.jupiter.api.BeforeEach;
+
+import com.example.amoba.model.Game;
+import com.example.amoba.model.Player;
+import com.example.amoba.persistence.ScoreRepository;
+import com.example.amoba.service.GameService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.mockito.Mockito.*;
+
 
 public class GameServiceTest {
+@Test
+public void testSaveScoreOnWin() throws Exception {
+Player p1 = new Player("A",'X');
+Player p2 = new Player("B",'O');
+Game game = new Game(3, p1, p2);
+// Az x a felső sor kitöltésével nyer
+game.makeMove(0,0); // X
+game.makeMove(1,0); // O
+game.makeMove(0,1); // X
+game.makeMove(1,1); // O
+game.makeMove(0,2); // X -> wins
 
-    private GameService gameService;
-    private HighScoreService highScoreServiceMock;
 
-    @BeforeEach
-    void init() {
-        highScoreServiceMock = Mockito.mock(HighScoreService.class);
-        gameService = new GameService(highScoreServiceMock);
-    }
+ScoreRepository repo = Mockito.mock(ScoreRepository.class);
+GameService svc = new GameService(game, repo);
 
-    @Test
-    void testUresTablaLetrejon() {
-        char[][] tabla = gameService.ujJatek();
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                assertEquals(' ', tabla[i][j]);
-            }
-        }
-    }
+// perform a valid move (will be ignored if invalid), but winner already exists — our service checks winner after moves
+svc.makeMove(2,2);
 
-    @Test
-    void testErvenyesLepes() {
-        gameService.ujJatek();
-        boolean siker = gameService.lep(0, 0, 'X');
 
-        assertTrue(siker);
-        assertEquals('X', gameService.getTabla()[0][0]);
-    }
-
-    @Test
-    void testFoglaltMezoreNemLehetLepni() {
-        gameService.ujJatek();
-        gameService.lep(0, 0, 'X');
-        boolean siker = gameService.lep(0, 0, 'O');
-
-        assertFalse(siker);
-    }
-
-    @Test
-    void testXNyertes() {
-        gameService.ujJatek();
-        gameService.lep(0, 0, 'X');
-        gameService.lep(1, 0, 'O');
-        gameService.lep(0, 1, 'X');
-        gameService.lep(1, 1, 'O');
-        gameService.lep(0, 2, 'X');
-
-        assertTrue(gameService.jatekosNyert('X'));
-    }
-
-    @Test
-    void testDontetlen() {
-        gameService.ujJatek();
-        char[][] dontetlenTabla = {
-                {'X','O','X'},
-                {'X','X','O'},
-                {'O','X','O'}
-        };
-
-        gameService.setTabla(dontetlenTabla);
-
-        assertTrue(gameService.dontetlen());
-    }
-
-    @Test
-    void testHighScoreMentes() {
-        gameService.ujJatek();
-        gameService.mentesHighScore("Jóska", 12);
-
-        Mockito.verify(highScoreServiceMock)
-                .addScore("Jóska", 12);
-    }
+verify(repo, atLeastOnce()).saveScore(eq("A"), anyInt());
+}
 }
