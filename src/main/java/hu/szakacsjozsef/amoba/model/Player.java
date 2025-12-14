@@ -1,12 +1,15 @@
-package hu.uni.amoba.model;
+package com.example.amoba.model;
 
 
-public enum Player {
-X, O;
+public class Player {
+private final String name;
+private final char symbol; // 'X' vagy 'O' vagy más
 
 
-@Override
-public String toString() {
-return name();
+public Player(String name, char symbol) {
+this.name = name;
+this.symbol = symbol;
 }
+public String getName() { return name; }
+public char getSymbol() { return symbol; }
 }
