@@ -1,8 +1,8 @@
-package hu.uni.amoba.exception;
+package com.example.amoba.exception;
 
+public class InvalidMoveException extends RuntimeException {
 
-public class InvalidMoveException extends Exception {
-public InvalidMoveException(String message) {
-super(message);
-}
+    public InvalidMoveException(String message) {
+        super(message);
+    }
 }
