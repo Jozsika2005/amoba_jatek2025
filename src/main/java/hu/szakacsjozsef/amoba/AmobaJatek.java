@@ -1,88 +1,77 @@
+package com.example.amoba;
+
+
+import com.example.amoba.model.Game;
+import com.example.amoba.model.Player;
+import com.example.amoba.persistence.H2ScoreRepository;
+import com.example.amoba.persistence.ScoreRepository;
+import com.example.amoba.service.GameService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 import java.util.Scanner;
 
-public class AmobaJatek {
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        char[][] tabla = new char[3][3];
+public class App {
+private static final Logger logger = LoggerFactory.getLogger(App.class);
+public static void main(String[] args) throws Exception {
+int size = 3;
+if (args.length>0) {
+try { size = Integer.parseInt(args[0]); }
+catch(NumberFormatException e){ logger.warn("Invalid size arg, using default 3"); }
+}
+Scanner sc = new Scanner(System.in);
+System.out.println("Amőba játék - méret: " + size + "x" + size);
 
-    
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                tabla[i][j] = ' ';
-            }
-        }
 
-        boolean jatekVege = false;
-        char jelenlegiJatekos = 'X';
+System.out.print("Játékos1 neve: ");
+String n1 = sc.nextLine().trim();
+System.out.print("Játékos2 neve: ");
+String n2 = sc.nextLine().trim();
 
-        System.out.println("Üdv az amőba játékban!");
-        printTabla(tabla);
 
-        while (!jatekVege) {
-            System.out.println("Játékos " + jelenlegiJatekos + ", írd be a sor és oszlop számát (0-2):");
-            int sor = scanner.nextInt();
-            int oszlop = scanner.nextInt();
+Player p1 = new Player(n1.isEmpty() ? "X" : n1, 'X');
+Player p2 = new Player(n2.isEmpty() ? "O" : n2, 'O');
 
-            if (sor < 0 || sor > 2 || oszlop < 0 || oszlop > 2) {
-                System.out.println("Hibás koordináták! Próbáld újra.");
-                continue;
-            }
 
-            if (tabla[sor][oszlop] != ' ') {
-                System.out.println("Ez a hely már foglalt! Próbáld újra.");
-                continue;
-            }
+Game game = new Game(size, p1, p2);
+ScoreRepository repo = new H2ScoreRepository("jdbc:h2:./data/amoeba;AUTO_SERVER=TRUE");
+repo.init();
 
-            tabla[sor][oszlop] = jelenlegiJatekos;
-            printTabla(tabla);
 
-            if (nyert(tabla, jelenlegiJatekos)) {
-                System.out.println("Gratulálok! Játékos " + jelenlegiJatekos + " nyert!");
-                jatekVege = true;
+GameService svc = new GameService(game, repo);
 
-            } else if (dontetlen(tabla)) {
-                System.out.println("Döntetlen!");
-                jatekVege = true;
 
-            } else {
-                jelenlegiJatekos = (jelenlegiJatekos == 'X') ? 'O' : 'X';
-            }
-        }
+while (true) {
+System.out.println(game.getBoard());
+System.out.println("Következő: " + game.getCurrentPlayer().getName());
+System.out.print("Add meg a sort és oszlopot (pl: 0 1), vagy 'exit': ");
+String line = sc.nextLine();
+if (line.equalsIgnoreCase("exit")) break;
+String[] parts = line.trim().split("\\s+");
+if (parts.length<2) continue;
+try {
+int r = Integer.parseInt(parts[0]);
+int c = Integer.parseInt(parts[1]);
+boolean ok = svc.makeMove(r,c);
+if (!ok) System.out.println("Érvénytelen lépés!");
+if (game.checkWinner().isPresent()) {
+System.out.println("Nyert: " + game.checkWinner().get().getName());
+break;
+}
+if (game.isDraw()) {
+System.out.println("Döntetlen!");
+break;
+}
+} catch (NumberFormatException ex) {
+System.out.println("Hibás input");
+}
+}
 
-        scanner.close();
-    }
 
-    public static void printTabla(char[][] tabla) {
-        System.out.println("-------------");
-        for (int i = 0; i < 3; i++) {
-            System.out.print("| ");
-            for (int j = 0; j < 3; j++) {
-                System.out.print(tabla[i][j] + " | ");
-            }
-            System.out.println();
-            System.out.println("-------------");
-        }
-    }
-
-    public static boolean nyert(char[][] tabla, char jatekos) {
-        for (int i = 0; i < 3; i++) {
-            if (tabla[i][0] == jatekos && tabla[i][1] == jatekos && tabla[i][2] == jatekos) return true;
-            if (tabla[0][i] == jatekos && tabla[1][i] == jatekos && tabla[2][i] == jatekos) return true;
-        }
-
-        if (tabla[0][0] == jatekos && tabla[1][1] == jatekos && tabla[2][2] == jatekos) return true;
-        if (tabla[0][2] == jatekos && tabla[1][1] == jatekos && tabla[2][0] == jatekos) return true;
-
-        return false;
-    }
-
-    public static boolean dontetlen(char[][] tabla) {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (tabla[i][j] == ' ') return false;
-            }
-        }
-        return true;
-    }
+System.out.println("Top scores:");
+repo.topScores(10).forEach(r -> System.out.println(r.get("name") + " -> " + r.get("score")));
+repo.close();
+}
 }
