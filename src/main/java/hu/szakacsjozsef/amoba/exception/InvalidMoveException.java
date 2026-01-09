@@ -1,4 +1,4 @@
-package com.example.amoba.exception;
+package hu.szakacsjozsef.amoba.exception;
 
 public class InvalidMoveException extends RuntimeException {
 

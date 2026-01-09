@@ -1,0 +1,4 @@
+József;1
+admin;2
+jozsika;2
+user;1

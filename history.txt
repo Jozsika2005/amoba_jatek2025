@@ -1,0 +1,57 @@
+=== MECCS ===
+X X O . O 
+X X X X X 
+O X X . X 
+O . O O . 
+. O . O . 
+
+Győztes: jozsika
+
+=== MECCS ===
+X O . . 
+X X X X 
+O . X . 
+O . . O 
+
+Győztes: jozsika
+
+=== MECCS ===
+X X O O 
+X . O . 
+X X . . 
+X . O . 
+
+Győztes: József
+
+=== MECCS ===
+X . . . 
+X O X . 
+X . O O 
+X . O X 
+
+Győztes: admin
+
+=== MECCS ===
+X . . . 
+X . . . 
+X O O . 
+X . . . 
+
+Győztes: admin
+
+=== MECCS ===
+X X O O 
+X O X O 
+O X X O 
+O X X X 
+
+Győztes: Döntetlen
+
+=== MECCS ===
+X . . . 
+X . X . 
+X O O . 
+X . O . 
+
+Győztes: user
+

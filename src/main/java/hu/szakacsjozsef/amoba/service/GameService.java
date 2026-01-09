@@ -1,45 +1,47 @@
-package com.example.amoba.service;
-
-
-import com.example.amoba.model.Game;
-import com.example.amoba.model.Player;
-import com.example.amoba.persistence.ScoreRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+package hu.szakacsjozsef.amoba.service;
 
 import java.util.Optional;
 
+import hu.szakacsjozsef.amoba.model.Game;
+import hu.szakacsjozsef.amoba.model.Move;
+import hu.szakacsjozsef.amoba.model.Player;
+import hu.szakacsjozsef.amoba.repository.ScoreRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GameService {
-private static final Logger logger = LoggerFactory.getLogger(GameService.class);
-private final ScoreRepository scoreRepo;
-private final Game game;
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(GameService.class);
 
-public GameService(Game game, ScoreRepository scoreRepo) {
-this.game = game;
-this.scoreRepo = scoreRepo;
-}
+    private final Game game;
+    private final ScoreRepository scoreRepository;
 
+    public GameService(Game game, ScoreRepository scoreRepository) {
+        this.game = game;
+        this.scoreRepository = scoreRepository;
+    }
 
-public boolean makeMove(int r, int c) {
-boolean ok = game.makeMove(r,c);
-logger.info("Move at ({},{}) accepted? {}", r,c,ok);
-if (ok) {
-Optional<Player> winner = game.checkWinner();
-if (winner.isPresent()) {
-try {
-// Nyertes esetén 1 pont alap (összeállítható)
-scoreRepo.saveScore(winner.get().getName(), 1);
-} catch (Exception e) {
-logger.error("Failed to save score", e);
-}
-}
-}
-return ok;
-}
+    public void makeMove(int row, int col) {
+        logger.info("Player {} moves to ({},{})",
+                game.getCurrentPlayer().getName(), row, col);
 
+        try {
+            Move move = new Move(row, col, game.getCurrentPlayer());
+            game.makeMove(move);
+        } catch (RuntimeException e) {
+            logger.warn("Invalid move: {}", e.getMessage());
+            throw e;
+        }
 
-public Game getGame(){ return game; }
+        Optional<Player> winner = game.getWinner();
+        if (winner.isPresent()) {
+            logger.info("Winner: {}", winner.get().getName());
+            scoreRepository.addWin(winner.get().getName());
+        }
+    }
+
+    public Game getGame() {
+        return game;
+    }
 }

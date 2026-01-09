@@ -1,0 +1,10 @@
+<game>
+  <size>4</size>
+  <current>X</current>
+  <board>
+    <row>X...</row>
+    <row>XOXX</row>
+    <row>....</row>
+    <row>OO..</row>
+  </board>
+</game>
